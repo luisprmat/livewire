@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +16,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'users' => User::all()
+    ]);
+});
+
+Route::get('search', function (Request $request) {
+    return view('partials.users', [
+        'users' => User::where('name', 'LIKE', "%{$request->q}%")->get()
+    ]);
 });
