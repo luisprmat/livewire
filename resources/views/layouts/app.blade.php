@@ -19,26 +19,10 @@
                 font-family: 'Nunito', sans-serif;
             }
         </style>
-        {{-- @livewireStyles --}}
         <livewire:styles />
     </head>
     <body class="antialiased">
-        {{-- @livewire('articles') --}}
-        <livewire:articles />
-
-        {{-- @livewire('articles.index') --}}
-        <livewire:articles.index />
-
-        {{-- @livewire('users-list') --}}
-        <livewire:users-list />
-
-        {{-- @livewire('inline') --}}
-        <livewire:inline />
-
-        {{-- @livewire('inline-component') --}}
-        <livewire:inline-component />
-
-        {{-- @livewireScripts --}}
+        {{ $slot }}
         <livewire:scripts />
     </body>
 </html>

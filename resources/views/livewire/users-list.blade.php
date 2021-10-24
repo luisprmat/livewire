@@ -1,3 +1,0 @@
-<div>
-    Users List
-</div>
