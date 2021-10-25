@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Livewire;
 
+use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -9,6 +10,27 @@ use Tests\TestCase;
 class ArticleFormTest extends TestCase
 {
     use RefreshDatabase;
+
+    /** @test */
+    function article_form_renders_properly()
+    {
+        $this->get(route('articles.create'))
+            ->assertSeeLivewire('article-form');
+
+        $article = Article::factory()->create();
+
+        $this->get(route('articles.edit', $article))
+            ->assertSeeLivewire('article-form');
+    }
+
+    /** @test */
+    function blade_template_is_wired_properly()
+    {
+        Livewire::test('article-form')
+            ->assertSeeHtml('wire:submit.prevent="save"')
+            ->assertPropertyWired('article.title')
+            ->assertPropertyWired('article.content');
+    }
 
     /** @test */
     function can_create_new_articles()
@@ -28,12 +50,34 @@ class ArticleFormTest extends TestCase
     }
 
     /** @test */
+    function can_update_articles()
+    {
+        $article = Article::factory()->create();
+
+        Livewire::test('article-form', ['article' => $article])
+            ->assertSet('article.title', $article->title)
+            ->assertSet('article.content', $article->content)
+            ->set('article.title', 'Updated title')
+            ->call('save')
+            ->assertSessionHas('status')
+            ->assertRedirect(route('articles.index'))
+        ;
+
+        $this->assertDatabaseCount('articles', 1);
+
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Updated title',
+        ]);
+    }
+
+    /** @test */
     function title_is_required()
     {
         Livewire::test('article-form')
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.title' => 'required'])
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.title')]))
         ;
     }
 
@@ -45,6 +89,10 @@ class ArticleFormTest extends TestCase
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.title' => 'min'])
+            ->assertSeeHtml(__('validation.min.string', [
+                'attribute' => __('validation.attributes.title'),
+                'min' => 4
+            ]))
         ;
     }
 
@@ -55,6 +103,7 @@ class ArticleFormTest extends TestCase
             ->set('article.title', 'Article title')
             ->call('save')
             ->assertHasErrors(['article.content' => 'required'])
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.content')]))
         ;
     }
 

@@ -14,6 +14,7 @@ class ArticleForm extends Component
         'article.content' => ['required']
     ];
 
+    /** Need for creating articles */
     public function mount(Article $article)
     {
         $this->article = $article;
