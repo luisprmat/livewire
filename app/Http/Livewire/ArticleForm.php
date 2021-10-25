@@ -10,12 +10,19 @@ class ArticleForm extends Component
     public $title;
     public $content;
 
+    protected $rules = [
+        'title' => ['required', 'min:4'],
+        'content' => ['required']
+    ];
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+
     public function save()
     {
-        $article = new Article;
-        $article->title = $this->title;
-        $article->content = $this->content;
-        $article->save();
+        Article::create($this->validate());
 
         session()->flash('status', __('Article created.'));
 
