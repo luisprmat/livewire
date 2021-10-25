@@ -6,6 +6,7 @@ use App\Models\Article;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class ArticleForm extends Component
 {
@@ -44,7 +45,7 @@ class ArticleForm extends Component
     {
         $this->validate();
 
-        $this->article->save();
+        Auth::user()->articles()->save($this->article);
 
         session()->flash('status', __('Article saved.'));
 
