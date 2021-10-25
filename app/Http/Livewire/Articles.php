@@ -2,14 +2,17 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Article;
 use Livewire\Component;
 
 class Articles extends Component
 {
+    public $search = '';
+
     public function render()
     {
         return view('livewire.articles', [
-            'articles' => \App\Models\Article::all()
+            'articles' => Article::where('title', 'LIKE', "%{$this->search}%")->get()
         ]);
     }
 }
