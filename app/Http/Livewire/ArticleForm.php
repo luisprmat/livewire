@@ -33,7 +33,10 @@ class ArticleForm extends Component
                 Rule::unique('articles', 'slug')->ignore($this->article)
             ],
             'article.content' => ['required'],
-            'article.category_id' => [],
+            'article.category_id' => [
+                'required',
+                Rule::exists('categories', 'id')
+            ],
         ];
     }
 
