@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Article;
+use App\Models\Category;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,8 @@ class ArticleForm extends Component
                 'alpha_dash',
                 Rule::unique('articles', 'slug')->ignore($this->article)
             ],
-            'article.content' => ['required']
+            'article.content' => ['required'],
+            'article.category_id' => [],
         ];
     }
 
@@ -68,7 +70,9 @@ class ArticleForm extends Component
 
     public function render()
     {
-        return view('livewire.article-form');
+        return view('livewire.article-form', [
+            'categories' => Category::pluck('name', 'id')
+        ]);
     }
 
     protected function uploadImage()
