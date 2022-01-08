@@ -17,28 +17,33 @@
 
                 <x-slot name="form">
                     <div class="col-span-6 sm:col-span-4">
-                        <x-select-image wire:model="image" :image="$image" :existing="$article->image" />
-                        <x-jet-input-error for="image" class="mt-2" />
+                        <x-select-image wire:model="image" :image="$image" :existing="$article->image"/>
+                        <x-jet-input-error for="image" class="mt-2"/>
                     </div>
                     <div class="col-span-6 sm:col-span-4">
-                        <x-jet-label for="title" :value="__('Title')" />
-                        <x-jet-input wire:model="article.title" id="title" class="mt-1 w-full" type="text" />
-                        <x-jet-input-error for="article.title" class="mt-2" />
+                        <x-jet-label for="title" :value="__('Title')"/>
+                        <x-jet-input wire:model="article.title" id="title" class="mt-1 w-full" type="text"/>
+                        <x-jet-input-error for="article.title" class="mt-2"/>
                     </div>
                     <div class="col-span-6 sm:col-span-4">
-                        <x-jet-label for="slug" :value="__('Slug')" />
-                        <x-jet-input wire:model="article.slug" id="slug" class="mt-1 w-full" type="text" />
-                        <x-jet-input-error for="article.slug" class="mt-2" />
+                        <x-jet-label for="slug" :value="__('Slug')"/>
+                        <x-jet-input wire:model="article.slug" id="slug" class="mt-1 w-full" type="text"/>
+                        <x-jet-input-error for="article.slug" class="mt-2"/>
                     </div>
                     <div class="col-span-6 sm:col-span-4">
-                        <x-jet-label for="category_id" :value="__('Category')" />
-                        <x-select wire:model="article.category_id" :options="$categories" id="category_id" :placeholder="__('Select category')" class="mt-1 w-full" />
-                        <x-jet-input-error for="article.category_id" class="mt-2" />
+                        <x-jet-label for="category_id" :value="__('Category')"/>
+                        <div class="flex space-x-2 mt-1">
+                            <x-select wire:model="article.category_id" :options="$categories" id="category_id" :placeholder="__('Select category')" class="w-full"/>
+                            <x-jet-secondary-button wire:click="$set('showCategoryModal', true)" class="!p-2.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            </x-jet-secondary-button>
+                        </div>
+                        <x-jet-input-error for="article.category_id" class="mt-2"/>
                     </div>
                     <div class="col-span-6 sm:col-span-4">
-                        <x-jet-label for="content" :value="__('Content')" />
+                        <x-jet-label for="content" :value="__('Content')"/>
                         <x-html-editor wire:model="article.content" id="content" class="mt-1 w-full"></x-html-editor>
-                        <x-jet-input-error for="article.content" class="mt-2" />
+                        <x-jet-input-error for="article.content" class="mt-2"/>
                     </div>
                 </x-slot>
 
@@ -51,4 +56,11 @@
             </x-jet-form-section>
         </div>
     </div>
+    <x-jet-dialog-modal wire:model="showCategoryModal">
+        <x-slot name="title">Modal Title</x-slot>
+        <x-slot name="content">Category Form</x-slot>
+        <x-slot name="footer">
+            <x-jet-secondary-button wire:click="$set('showCategoryModal', false)">Cancel</x-jet-secondary-button>
+        </x-slot>
+    </x-jet-dialog-modal>
 </div>
