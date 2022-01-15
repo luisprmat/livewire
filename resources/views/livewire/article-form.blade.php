@@ -79,7 +79,7 @@
             </div>
 
             <div class="px-6 py-4 bg-gray-100 text-right space-x-2">
-                <x-jet-secondary-button wire:click="closeCategoryForm">Cancel</x-jet-secondary-button>
+                <x-jet-secondary-button wire:click="closeCategoryForm">{{ __('Cancel') }}</x-jet-secondary-button>
                 <x-jet-button>{{ __('Submit') }}</x-jet-button>
             </div>
         </form>

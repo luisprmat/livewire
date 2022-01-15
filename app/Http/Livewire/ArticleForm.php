@@ -23,25 +23,6 @@ class ArticleForm extends Component
 
     public $showCategoryModal = false;
 
-    public function openCategoryForm()
-    {
-        $this->newCategory = new Category;
-        $this->showCategoryModal = true;
-    }
-
-    public function closeCategoryForm()
-    {
-        $this->showCategoryModal = false;
-        $this->newCategory = null;
-    }
-
-    public function saveNewCategory()
-    {
-        $this->newCategory->save();
-        $this->article->category_id = $this->newCategory->id;
-        $this->closeCategoryForm();
-    }
-
     protected function rules()
     {
         return [
@@ -60,8 +41,14 @@ class ArticleForm extends Component
                 'required',
                 Rule::exists('categories', 'id')
             ],
-            'newCategory.name' => [],
-            'newCategory.slug' => [],
+            'newCategory.name' => [
+                Rule::requiredIf($this->newCategory instanceof Category),
+                Rule::unique('categories', 'name')
+            ],
+            'newCategory.slug' => [
+                Rule::requiredIf($this->newCategory instanceof Category),
+                Rule::unique('categories', 'slug')
+            ],
         ];
     }
 
@@ -69,6 +56,28 @@ class ArticleForm extends Component
     public function mount(Article $article)
     {
         $this->article = $article;
+    }
+
+    public function openCategoryForm()
+    {
+        $this->newCategory = new Category;
+        $this->showCategoryModal = true;
+    }
+
+    public function closeCategoryForm()
+    {
+        $this->showCategoryModal = false;
+        $this->newCategory = null;
+        $this->clearValidation('newCategory.*');
+    }
+
+    public function saveNewCategory()
+    {
+        $this->validateOnly('newCategory.name');
+        $this->validateOnly('newCategory.slug');
+        $this->newCategory->save();
+        $this->article->category_id = $this->newCategory->id;
+        $this->closeCategoryForm();
     }
 
     public function updated($propertyName)
