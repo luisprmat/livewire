@@ -48,9 +48,12 @@
                 </x-slot>
 
                 <x-slot name="actions">
-                    <x-jet-danger-button wire:click="$set('showDeleteModal', true)" class="mr-auto">
-                        {{ __('Delete') }}
-                    </x-jet-danger-button>
+                    @if ($this->article->exists)
+                        <x-jet-danger-button wire:click="$set('showDeleteModal', true)" class="mr-auto">
+                            {{ __('Delete') }}
+                        </x-jet-danger-button>
+                    @endif
+
                     <x-jet-button>
                         {{ __('Save') }}
                     </x-jet-button>
@@ -60,16 +63,18 @@
         </div>
     </div>
 
-    <x-jet-confirmation-modal wire:model="showDeleteModal">
-        <x-slot name="title">{{ __('Are you sure?') }}</x-slot>
-        <x-slot name="content">
-            {{ __('Do you want to delete the article: :article?', ['article' => $this->article->title]) }}
-        </x-slot>
-        <x-slot name="footer">
-            <x-jet-button wire:click="$set('showDeleteModal', false)">{{ __('Cancel') }}</x-jet-button>
-            <x-jet-danger-button wire:click="delete">{{ __('Confirm') }}</x-jet-danger-button>
-        </x-slot>
-    </x-jet-confirmation-modal>
+    @if ($this->article->exists)
+        <x-jet-confirmation-modal wire:model="showDeleteModal">
+            <x-slot name="title">{{ __('Are you sure?') }}</x-slot>
+            <x-slot name="content">
+                {{ __('Do you want to delete the article: :article?', ['article' => $this->article->title]) }}
+            </x-slot>
+            <x-slot name="footer">
+                <x-jet-button wire:click="$set('showDeleteModal', false)">{{ __('Cancel') }}</x-jet-button>
+                <x-jet-danger-button wire:click="delete">{{ __('Confirm') }}</x-jet-danger-button>
+            </x-slot>
+        </x-jet-confirmation-modal>
+    @endif
 
     <x-jet-modal wire:model="showCategoryModal">
         <form wire:submit.prevent="saveNewCategory">
