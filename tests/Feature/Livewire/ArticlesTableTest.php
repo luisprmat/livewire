@@ -2,16 +2,20 @@
 
 namespace Tests\Feature\Livewire;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ArticlesTest extends TestCase
+class ArticlesTableTest extends TestCase
 {
     /** @test */
     function articles_component_renders_properly()
     {
-        $this->markTestSkipped();
-        // $this->get('dashboard/blog')->assertSeeLivewire('articles-table');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('articles.index'))
+            ->assertSeeLivewire('articles-table');
     }
 }
