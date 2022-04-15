@@ -22,8 +22,22 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Title') }}</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Created at') }}</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+                                        <button class="flex items-center uppercase tracking-wider hover:underline" wire:click="sortBy('title')">
+                                            {{ __('Title') }}
+                                            @if($sortField === 'title')
+                                                <svg class="h-3 w-3 ml-1 duration-200 transform @if($sortDirection === 'desc') rotate-180 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                                            @endif
+                                        </button>
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+                                        <button class="flex items-center uppercase tracking-wider hover:underline" wire:click="sortBy('created_at')">
+                                            {{ __('Created at') }}
+                                            @if($sortField === 'created_at')
+                                                <svg class="h-3 w-3 ml-1 duration-200 transform @if($sortDirection === 'desc') rotate-180 @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                                            @endif
+                                        </button>
+                                    </th>
                                     <th scope="col" class="relative px-6 py-3">
                                         <span class="sr-only">Edit</span>
                                     </th>
