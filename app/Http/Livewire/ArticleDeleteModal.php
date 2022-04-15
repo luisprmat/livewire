@@ -15,7 +15,9 @@ class ArticleDeleteModal extends Component
 
     public function confirmArticleDeletion($article)
     {
-        $this->showDeleteModal = true;
+        if ($this->article->id === $article['id']) {
+            $this->showDeleteModal = true;
+        }
     }
 
     public function delete()
