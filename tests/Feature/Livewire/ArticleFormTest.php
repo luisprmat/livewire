@@ -2,21 +2,21 @@
 
 namespace Tests\Feature\Livewire;
 
-use Tests\TestCase;
-use App\Models\User;
-use Livewire\Livewire;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
 
 class ArticleFormTest extends TestCase
 {
     use RefreshDatabase;
 
     /** @test */
-    function guest_users_cannot_or_update_articles()
+    public function guest_users_cannot_or_update_articles()
     {
         $this->get(route('articles.create'))
             ->assertRedirect('login');
@@ -28,7 +28,7 @@ class ArticleFormTest extends TestCase
     }
 
     /** @test */
-    function article_form_renders_properly()
+    public function article_form_renders_properly()
     {
         $user = User::factory()->create();
 
@@ -44,16 +44,16 @@ class ArticleFormTest extends TestCase
     }
 
     /** @test */
-    function blade_template_is_wired_properly()
+    public function blade_template_is_wired_properly()
     {
         Livewire::test('article-form')
             ->assertSeeHtml('wire:submit.prevent="save"')
-            ->assertPropertyWired('article.title')
-            ->assertPropertyWired('article.slug');
+            ->assertSeeHtml('wire:model="article.title"')
+            ->assertSeeHtml('wire:model="article.slug"');
     }
 
     /** @test */
-    function can_create_new_articles()
+    public function can_create_new_articles()
     {
         Storage::fake('public');
 
@@ -71,8 +71,7 @@ class ArticleFormTest extends TestCase
             ->set('article.category_id', $category->id)
             ->call('save')
             ->assertSessionHas('flash.banner')
-            ->assertRedirect(route('articles.index'))
-        ;
+            ->assertRedirect(route('articles.index'));
 
         $this->assertDatabaseHas('articles', [
             'image' => $imagePath = Storage::disk('public')->files()[0],
@@ -80,17 +79,17 @@ class ArticleFormTest extends TestCase
             'slug' => 'new-article',
             'content' => 'Article content',
             'category_id' => $category->id,
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         Storage::disk('public')->assertExists($imagePath);
     }
 
     /** @test */
-    function can_update_articles()
+    public function can_update_articles()
     {
         $article = Article::factory()->create([
-            'image' => '/path/to/image.png'
+            'image' => '/path/to/image.png',
         ]);
 
         $user = User::factory()->create();
@@ -104,20 +103,19 @@ class ArticleFormTest extends TestCase
             ->set('article.slug', 'updated-slug')
             ->call('save')
             ->assertSessionHas('flash.banner')
-            ->assertRedirect(route('articles.index'))
-        ;
+            ->assertRedirect(route('articles.index'));
 
         $this->assertDatabaseCount('articles', 1);
 
         $this->assertDatabaseHas('articles', [
             'title' => 'Updated title',
             'slug' => 'updated-slug',
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
     }
 
     /** @test */
-    function can_update_articles_image()
+    public function can_update_articles_image()
     {
         Storage::fake('public');
 
@@ -127,7 +125,7 @@ class ArticleFormTest extends TestCase
         $newImage = UploadedFile::fake()->image('new-image.png');
 
         $article = Article::factory()->create([
-            'image' => $oldImagePath
+            'image' => $oldImagePath,
         ]);
 
         $user = User::factory()->create();
@@ -136,8 +134,7 @@ class ArticleFormTest extends TestCase
             ->set('image', $newImage)
             ->call('save')
             ->assertSessionHas('flash.banner')
-            ->assertRedirect(route('articles.index'))
-        ;
+            ->assertRedirect(route('articles.index'));
 
         Storage::disk('public')
             ->assertExists($article->fresh()->image)
@@ -146,30 +143,28 @@ class ArticleFormTest extends TestCase
     }
 
     /** @test */
-    function image_is_required()
+    public function image_is_required()
     {
         Livewire::test('article-form')
             ->set('article.title', 'Article title')
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['image' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.image')]))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.image')]));
     }
 
     /** @test */
-    function image_must_be_of_type_image()
+    public function image_must_be_of_type_image()
     {
         Livewire::test('article-form')
             ->set('image', 'string-not-allowed')
             ->call('save')
             ->assertHasErrors(['image' => 'image'])
-            ->assertSeeHtml(__('validation.image', ['attribute' => __('validation.attributes.image')]))
-        ;
+            ->assertSeeHtml(__('validation.image', ['attribute' => __('validation.attributes.image')]));
     }
 
     /** @test */
-    function image_must_be_512kb_max()
+    public function image_must_be_512kb_max()
     {
         Storage::fake('public');
 
@@ -181,24 +176,22 @@ class ArticleFormTest extends TestCase
             ->assertHasErrors(['image' => 'max'])
             ->assertSeeHtml(__('validation.max.file', [
                 'attribute' => __('validation.attributes.image'),
-                'max' => '512'
-            ]))
-        ;
+                'max' => '512',
+            ]));
     }
 
     /** @test */
-    function title_is_required()
+    public function title_is_required()
     {
         Livewire::test('article-form')
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.title' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.title')]))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.title')]));
     }
 
     /** @test */
-    function category_is_required()
+    public function category_is_required()
     {
         Livewire::test('article-form')
             ->set('article.title', 'New Article')
@@ -207,12 +200,11 @@ class ArticleFormTest extends TestCase
             ->set('article.category_id', null)
             ->call('save')
             ->assertHasErrors(['article.category_id' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => 'category id']))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => 'category id']));
     }
 
     /** @test */
-    function category_must_exists_in_database()
+    public function category_must_exists_in_database()
     {
         Livewire::test('article-form')
             ->set('article.title', 'New Article')
@@ -221,12 +213,11 @@ class ArticleFormTest extends TestCase
             ->set('article.category_id', 99)
             ->call('save')
             ->assertHasErrors(['article.category_id' => 'exists'])
-            ->assertSeeHtml(__('validation.exists', ['attribute' => 'category id']))
-        ;
+            ->assertSeeHtml(__('validation.exists', ['attribute' => 'category id']));
     }
 
     /** @test */
-    function can_create_new_category()
+    public function can_create_new_category()
     {
         Livewire::test('article-form')
             ->call('openCategoryForm')
@@ -234,26 +225,24 @@ class ArticleFormTest extends TestCase
             ->assertSet('newCategory.slug', 'laravel')
             ->call('saveNewCategory')
             ->assertSet('article.category_id', Category::first()->id)
-            ->assertSet('showCategoryModal', false)
-        ;
+            ->assertSet('showCategoryModal', false);
 
         $this->assertDatabaseCount('categories', 1);
     }
 
     /** @test */
-    function new_category_name_is_required()
+    public function new_category_name_is_required()
     {
         Livewire::test('article-form')
             ->call('openCategoryForm')
             ->set('newCategory.slug', 'laravel')
             ->call('saveNewCategory')
             ->assertHasErrors(['newCategory.name' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.name')]))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.name')]));
     }
 
     /** @test */
-    function new_category_name_must_be_unique()
+    public function new_category_name_must_be_unique()
     {
         $category = Category::factory()->create();
 
@@ -263,12 +252,11 @@ class ArticleFormTest extends TestCase
             ->set('newCategory.slug', 'laravel')
             ->call('saveNewCategory')
             ->assertHasErrors(['newCategory.name' => 'unique'])
-            ->assertSeeHtml(__('validation.unique', ['attribute' => __('validation.attributes.name')]))
-        ;
+            ->assertSeeHtml(__('validation.unique', ['attribute' => __('validation.attributes.name')]));
     }
 
     /** @test */
-    function new_category_slug_is_required()
+    public function new_category_slug_is_required()
     {
         Livewire::test('article-form')
             ->call('openCategoryForm')
@@ -276,12 +264,11 @@ class ArticleFormTest extends TestCase
             ->set('newCategory.slug', null)
             ->call('saveNewCategory')
             ->assertHasErrors(['newCategory.slug' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => 'slug']))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => 'slug']));
     }
 
     /** @test */
-    function new_category_slug_must_be_unique()
+    public function new_category_slug_must_be_unique()
     {
         $category = Category::factory()->create();
 
@@ -291,12 +278,11 @@ class ArticleFormTest extends TestCase
             ->set('newCategory.slug', $category->slug)
             ->call('saveNewCategory')
             ->assertHasErrors(['newCategory.slug' => 'unique'])
-            ->assertSeeHtml(__('validation.unique', ['attribute' => 'slug']))
-        ;
+            ->assertSeeHtml(__('validation.unique', ['attribute' => 'slug']));
     }
 
     /** @test */
-    function slug_is_required()
+    public function slug_is_required()
     {
         Livewire::test('article-form')
             ->set('article.title', 'New Article')
@@ -304,12 +290,11 @@ class ArticleFormTest extends TestCase
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.slug' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => 'slug']))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => 'slug']));
     }
 
     /** @test */
-    function slug_must_be_unique()
+    public function slug_must_be_unique()
     {
         $article = Article::factory()->create();
 
@@ -319,12 +304,11 @@ class ArticleFormTest extends TestCase
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.slug' => 'unique'])
-            ->assertSeeHtml(__('validation.unique', ['attribute' => 'slug']))
-        ;
+            ->assertSeeHtml(__('validation.unique', ['attribute' => 'slug']));
     }
 
     /** @test */
-    function slug_must_only_contain_letters_numbers_dashes_and_underscores()
+    public function slug_must_only_contain_letters_numbers_dashes_and_underscores()
     {
         Livewire::test('article-form')
             ->set('article.title', 'New Article')
@@ -332,12 +316,11 @@ class ArticleFormTest extends TestCase
             ->set('article.content', 'Article content')
             ->call('save')
             ->assertHasErrors(['article.slug' => 'alpha_dash'])
-            ->assertSeeHtml(__('validation.alpha_dash', ['attribute' => 'slug']))
-        ;
+            ->assertSeeHtml(__('validation.alpha_dash', ['attribute' => 'slug']));
     }
 
     /** @test */
-    function unique_rule_should_be_ignored_when_updating_the_same_slug()
+    public function unique_rule_should_be_ignored_when_updating_the_same_slug()
     {
         $article = Article::factory()->create();
         $user = User::factory()->create();
@@ -347,12 +330,11 @@ class ArticleFormTest extends TestCase
             ->set('article.slug', $article->slug)
             ->set('article.content', 'Article content')
             ->call('save')
-            ->assertHasNoErrors(['article.slug' => 'unique'])
-        ;
+            ->assertHasNoErrors(['article.slug' => 'unique']);
     }
 
     /** @test */
-    function title_must_be_4_characters_min()
+    public function title_must_be_4_characters_min()
     {
         Livewire::test('article-form')
             ->set('article.title', 'Art')
@@ -361,24 +343,22 @@ class ArticleFormTest extends TestCase
             ->assertHasErrors(['article.title' => 'min'])
             ->assertSeeHtml(__('validation.min.string', [
                 'attribute' => __('validation.attributes.title'),
-                'min' => 4
-            ]))
-        ;
+                'min' => 4,
+            ]));
     }
 
     /** @test */
-    function content_is_required()
+    public function content_is_required()
     {
         Livewire::test('article-form')
             ->set('article.title', 'Article title')
             ->call('save')
             ->assertHasErrors(['article.content' => 'required'])
-            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.content')]))
-        ;
+            ->assertSeeHtml(__('validation.required', ['attribute' => __('validation.attributes.content')]));
     }
 
     /** @test */
-    function real_time_validation_works_for_title()
+    public function real_time_validation_works_for_title()
     {
         Livewire::test('article-form')
             ->set('article.title', '')
@@ -386,27 +366,24 @@ class ArticleFormTest extends TestCase
             ->set('article.title', 'New')
             ->assertHasErrors(['article.title' => 'min'])
             ->set('article.title', 'New Article')
-            ->assertHasNoErrors('article.title')
-        ;
+            ->assertHasNoErrors('article.title');
     }
 
     /** @test */
-    function real_time_validation_works_for_content()
+    public function real_time_validation_works_for_content()
     {
         Livewire::test('article-form')
             ->set('article.content', '')
             ->assertHasErrors(['article.content' => 'required'])
             ->set('article.content', 'Article content')
-            ->assertHasNoErrors('article.content')
-        ;
+            ->assertHasNoErrors('article.content');
     }
 
     /** @test */
-    function slug_is_generated_automatically()
+    public function slug_is_generated_automatically()
     {
         Livewire::test('article-form')
             ->set('article.title', 'Nuevo artículo')
-            ->assertSet('article.slug', 'nuevo-articulo')
-        ;
+            ->assertSet('article.slug', 'nuevo-articulo');
     }
 }
